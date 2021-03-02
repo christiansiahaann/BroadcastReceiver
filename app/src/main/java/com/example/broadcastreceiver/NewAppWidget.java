@@ -1,5 +1,6 @@
 package com.example.broadcastreceiver;
 
+import android.app.AlarmManager;
 import android.app.PendingIntent;
 import android.appwidget.AppWidgetManager;
 import android.appwidget.AppWidgetProvider;
@@ -9,6 +10,7 @@ import android.content.SharedPreferences;
 import android.widget.RemoteViews;
 
 import java.text.DateFormat;
+import java.util.Calendar;
 import java.util.Date;
 
 /**
@@ -43,8 +45,22 @@ public class NewAppWidget extends AppWidgetProvider {
         int[] idArray=new int[]{appWidgetId};
         intentUpdate.putExtra(AppWidgetManager.EXTRA_APPWIDGET_IDS,idArray);
 
-        PendingIntent pendingIntent=PendingIntent.getBroadcast(context,
+        PendingIntent alarmIntent= PendingIntent.getBroadcast(context,
                 appWidgetId,intentUpdate, PendingIntent.FLAG_UPDATE_CURRENT);
+        Calendar calendar= Calendar.getInstance();
+        calendar.setTimeInMillis(System.currentTimeMillis());
+        calendar.set(Calendar.MINUTE, calendar.get(Calendar.MINUTE)+1);
+        calendar.set(Calendar.SECOND,0);
+        calendar.set(Calendar.MILLISECOND,0);
+
+        AlarmManager alarmManager=(AlarmManager) context.getSystemService(Context.ALARM_SERVICE);
+        alarmManager.setInexactRepeating(AlarmManager.RTC,
+                calendar.getTimeInMillis(), 60+1000,alarmIntent);
+        // PendingIntent pendingIntent=PendingIntent.getBroadcast(context,
+       //         appWidgetId,intentUpdate, PendingIntent.FLAG_UPDATE_CURRENT);
+        Intent intentActivity=new Intent(context,MainActivity.class);
+        PendingIntent pendingIntent=PendingIntent.getActivity(context,0,
+                intentActivity,0);
         views.setOnClickPendingIntent(R.id.button_update, pendingIntent);
 
         // Instruct the widget manager to update the widget
